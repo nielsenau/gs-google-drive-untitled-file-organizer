@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untitled File Organizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #fafbfc;
+            color: #1a1d29;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e4e7ec;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1d29;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+        }
+        
+        .progress-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        
+        .progress-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+        }
+        
+        .progress-track {
+            flex: 1;
+            max-width: 200px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin: 0 16px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 2.5%;
+            transition: width 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            min-height: calc(100vh - 120px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e4e7ec;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e4e7ec;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .sidebar-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1d29;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .file-count {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .file-count.loading {
+            background: #fff3e0;
+            color: #ff6d00;
+        }
+
+        .loading-dots {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #ff6d00;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        .file-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .file-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .file-list::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+         .file-item {
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-item .material-symbols-outlined {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .file-icon.sheets {
+            color: #0f9d58;
+        }
+
+        .file-icon.slides {
+            color: #ff6d00;
+        }
+
+        .file-icon.docs {
+            color: #4285f4;
+        }
+
+        .file-icon.other {
+            color: #64748b;
+        }
+
+        .file-item:hover {
+            background: #f8fafc;
+        }
+
+        .file-item.selected {
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .file-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #1a1d29;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-meta {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .main-panel {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e4e7ec;
+            overflow: hidden;
+        }
+        
+        .main-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e4e7ec;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .main-icon {
+            width: 40px;
+            height: 40px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-icon.sheets {
+            background: #e8f5e8;
+            color: #0f9d58;
+        }
+        
+        .main-icon.slides {
+            background: #fff3e0;
+            color: #ff6d00;
+        }
+        
+        .main-icon.docs {
+            background: #e3f2fd;
+            color: #4285f4;
+        }
+        
+        .main-icon.other {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .main-title {
+            flex: 1;
+        }
+        
+        .main-title h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1d29;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .main-title p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .open-file-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .open-file-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #374151;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 20;
+        }
+        
+        .main-content {
+            padding: 24px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .detail-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .detail-value {
+            color: #1a1d29;
+            font-weight: 500;
+        }
+        
+        .preview-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-label {
+            font-weight: 600;
+            color: #1a1d29;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .preview-content {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 13px;
+            color: #475569;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .rename-section {
+            border-top: 1px solid #e4e7ec;
+            padding-top: 24px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .name-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.15s ease;
+            background: white;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+        }
+        
+
+        
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+         .btn-ghost {
+            background: transparent;
+            color: #64748b;
+        }
+
+        .btn-ghost:hover {
+            color: #374151;
+            background: #f8fafc;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .location-bar {
+            background: #f8fafc;
+            padding: 12px 24px;
+            border-bottom: 1px solid #e4e7ec;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .toast.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .loading-indicator {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e4e7ec;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1d29;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
+        .folder-breadcrumb {
+            padding: 16px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e4e7ec;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #64748b;
+            overflow-x: auto;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .breadcrumb-item:hover {
+            background: #f1f5f9;
+            color: #374151;
+        }
+
+        .breadcrumb-separator {
+            color: #cbd5e1;
+        }
+
+        .folder-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .folder-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .folder-item:hover {
+            background: #f8fafc;
+        }
+
+        .folder-item.selected {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .folder-icon {
+            color: #fbbf24;
+            flex-shrink: 0;
+        }
+
+        .folder-icon.has-subfolders {
+            color: #3b82f6;
+        }
+
+        .folder-icon.empty {
+            color: #94a3b8;
+        }
+
+        .folder-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .folder-loading {
+            padding: 40px 24px;
+            text-align: center;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e4e7ec;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                padding: 16px;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>
+                    <span class="material-symbols-outlined">signature</span>
+                    Untitled File Organizer
+                </h1>
+            </div>
+        </div>
+    </div>
+    
+    <div class="progress-bar">
+        <div class="progress-content">
+            <div class="progress-info">
+                <span class="material-symbols-outlined">description</span>
+                <span id="progress-info">Loading...</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill"></div>
+            </div>
+            <span id="total-files">0 files found</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <span class="material-symbols-outlined">list</span>
+                    Files Found
+                </div>
+                <span class="file-count" id="file-count">0</span>
+            </div>
+            
+            <ul class="file-list" id="file-list">
+                <!-- Files populated by script -->
+            </ul>
+        </div>
+        
+        <div class="main-panel">
+            <div class="location-bar">
+                <span class="material-symbols-outlined">folder</span>
+                <span>My Drive</span>
+                <span class="material-symbols-outlined" style="font-size: 12px;">chevron_right</span>
+                <span id="current-location">Current Selection</span>
+            </div>
+            
+            <div class="main-header">
+                <div class="main-icon" id="main-icon">
+                    <span class="material-symbols-outlined" style="font-size: 20px;" id="main-icon-element">description</span>
+                </div>
+                <div class="main-title">
+                    <h2 id="main-title">Select a file to begin</h2>
+                    <p id="main-subtitle">Choose a file from the sidebar</p>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="details-grid" id="details-grid">
+                    <!-- Details populated by script -->
+                </div>
+                
+                <div class="preview-section" id="preview-section" style="display: none;">
+                    <div class="section-label">
+                        <span class="material-symbols-outlined">visibility</span>
+                        Content Preview
+                    </div>
+                    <div class="preview-content" id="preview-content">
+                        No preview available
+                    </div>
+                </div>
+                
+                <div class="rename-section" id="rename-section" style="display: none;">
+                    <div class="section-label">
+                        <span class="material-symbols-outlined">edit</span>
+                        Rename File
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">New File Name</label>
+                        <input type="text" class="name-input" id="name-input" placeholder="Enter a descriptive name...">
+                    </div>
+                    
+                    <div class="action-bar">
+                        <button class="btn btn-primary" id="save-btn">
+                            <span class="material-symbols-outlined">save_as</span>
+                            Save & Continue
+                        </button>
+                        <button class="btn btn-secondary" id="skip-btn">
+                            <span class="material-symbols-outlined">skip_next</span>
+                            Skip This File
+                        </button>
+                        <button class="btn btn-success" id="move-btn">
+                            <span class="material-symbols-outlined">drive_file_move</span>
+                            Move
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-indicator" id="loading-indicator">
+        <div class="loading-spinner"></div>
+        <div>Loading...</div>
+    </div>
+
+    <div class="modal-overlay" id="folder-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="material-symbols-outlined">drive_file_move</span>
+                    Move to Folder
+                </div>
+                <button class="modal-close" id="modal-close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="folder-breadcrumb" id="folder-breadcrumb">
+                <span class="material-symbols-outlined">home</span>
+                <span class="breadcrumb-item">My Drive</span>
+            </div>
+            
+            <div class="folder-list" id="folder-list">
+                <div class="folder-loading">
+                    <div class="loading-dots"></div>
+                    Loading folders...
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-move">Cancel</button>
+                <button class="btn btn-success" id="confirm-move" disabled>
+                    <span class="material-symbols-outlined">drive_file_move</span>
+                    Move Here
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CHUNK_SIZE = 20;
+        const LOADING_INTERVAL = 3000;
+        const MY_DRIVE_FOLDER = { id: 'root', name: 'My Drive' };
+        const TOAST_DURATION = 3000;
+        const SUCCESS_DELAY = 1000;
+        
+        const ICONS = {
+            fileTypes: {
+                sheets: 'table',
+                slides: 'smart_display', 
+                docs: 'description',
+                other: 'file_present'
+            },
+            folders: {
+                default: 'folder',
+                hasSubfolders: 'folder_copy',
+                empty: 'folder_open'
+            }
+        };
+
+        const DOM = {
+            loadingIndicator: () => document.getElementById('loading-indicator'),
+            progressFill: () => document.querySelector('.progress-fill'),
+            progressInfo: () => document.getElementById('progress-info'),
+            totalFiles: () => document.getElementById('total-files'),
+            fileList: () => document.getElementById('file-list'),
+            fileDetails: () => document.getElementById('file-details'),
+            nameInput: () => document.getElementById('name-input'),
+            folderModal: () => document.getElementById('folder-modal'),
+            folderList: () => document.getElementById('folder-list'),
+            confirmMove: () => document.getElementById('confirm-move')
+        };
+
+        function makeApiCall(method, params = [], successHandler, errorHandler, errorContext = method) {
+            google.script.run
+                .withSuccessHandler(successHandler)
+                .withFailureHandler(function(error) {
+                    console.error(`${errorContext} error:`, error);
+                    if (errorHandler) errorHandler(error);
+                    else handleError(error, errorContext);
+                })[method](...params);
+        }
+
+        function setElementContent(id, content) {
+            document.getElementById(id).innerHTML = content;
+        }
+
+        function toggleElementClass(selector, className, condition) {
+            document.querySelectorAll(selector).forEach(el => 
+                el.classList.toggle(className, condition)
+            );
+        }
+
+        function updateMoveButton() {
+            DOM.confirmMove().disabled = !selectedFolderId;
+        }
+
+        function processRenameResult(result, newName) {
+            if (result.success) {
+                files[currentIndex].name = newName;
+                displayCurrentFile();
+                populateFileList();
+                handleSuccess(`File renamed to "${newName}"`);
+                setTimeout(nextFile, SUCCESS_DELAY);
+            } else {
+                handleError(new Error(result.error || 'Failed to rename file'), 'renameFile');
+            }
+        }
+
+        let files = [];
+        let currentIndex = 0;
+        let hasMoreFiles = false;
+        let isLoadingMore = false;
+        let totalFilesLoaded = 0;
+        let backgroundLoadingInterval = null;
+
+        let currentFolderId = 'root';
+        let selectedFolderId = null;
+        let folderPath = [];
+        let isMovingFile = false;
+
+        function getDefaultLocation(parentFolders) {
+            return parentFolders && parentFolders.length > 0 ? parentFolders[0].name : MY_DRIVE_FOLDER.name;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, TOAST_DURATION);
+        }
+
+        function handleError(error, context = '') {
+            console.error('Error' + (context ? ' in ' + context : '') + ':', error);
+            showToast(error.message || 'An error occurred', 'error');
+        }
+
+        function handleSuccess(message) {
+            showToast(message, 'success');
+        }
+
+        function showLoading() {
+            DOM.loadingIndicator().style.display = 'block';
+        }
+
+        function hideLoading() {
+            DOM.loadingIndicator().style.display = 'none';
+        }
+
+        function getFileType(file) {
+            const type = file.mimeType;
+            if (type.includes('spreadsheet')) return 'sheets';
+            if (type.includes('presentation')) return 'slides';
+            if (type.includes('document')) return 'docs';
+            return 'other';
+        }
+
+        function getFileIcon(type) {
+            return ICONS.fileTypes[type] || ICONS.fileTypes.other;
+        }
+
+        function getFileIconElement(type) {
+            const iconName = getFileIcon(type);
+            return `<span class="material-symbols-outlined file-icon ${type}">${iconName}</span>`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function updateProgressBar() {
+            const progressFill = DOM.progressFill();
+            const progressInfo = DOM.progressInfo();
+            const totalFiles = DOM.totalFiles();
+            
+            if (files.length > 0) {
+                const percentage = ((currentIndex + 1) / files.length) * 100;
+                progressFill.style.width = `${percentage}%`;
+                progressInfo.textContent = `File ${currentIndex + 1} of ${files.length}`;
+                
+                const loadingStatus = hasMoreFiles || isLoadingMore;
+                totalFiles.textContent = `${files.length}${loadingStatus ? '+' : ''} files found${isLoadingMore ? ' (loading more...)' : ''}`;
+            } else {
+                progressFill.style.width = '0%';
+                progressInfo.textContent = 'Loading...';
+                totalFiles.textContent = '0 files found';
+            }
+        }
+
+        function populateFileList() {
+            const fileList = DOM.fileList();
+            const fileCount = document.getElementById('file-count');
+            
+            const scrollTop = fileList.scrollTop;
+            
+            fileList.innerHTML = '';
+            
+            const loadingState = hasMoreFiles || isLoadingMore;
+            fileCount.textContent = `${files.length}${loadingState ? '+' : ''}`;
+            fileCount.className = `file-count${isLoadingMore ? ' loading' : ''}`;
+            
+            if (isLoadingMore) {
+                fileCount.innerHTML = `${files.length}+ <div class="loading-dots"></div>`;
+            }
+            
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('li');
+                fileItem.className = 'file-item';
+                if (index === currentIndex) {
+                    fileItem.classList.add('selected');
+                }
+                
+                const fileType = getFileType(file);
+                const fileIconElement = getFileIconElement(fileType);
+                
+                fileItem.innerHTML = `
+                    ${fileIconElement}
+                    <div class="file-content">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-meta">${file.dateCreated} • ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}</div>
+                    </div>
+                `;
+                
+                fileItem.addEventListener('click', () => {
+                    jumpToFile(index);
+                });
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            fileList.scrollTop = scrollTop;
+        }
+
+        function displayCurrentFile() {
+            if (!files.length || currentIndex >= files.length) return;
+            
+            const file = files[currentIndex];
+            const fileType = getFileType(file);
+            const fileIcon = getFileIcon(fileType);
+            
+            const mainIcon = document.getElementById('main-icon');
+            const mainIconElement = document.getElementById('main-icon-element');
+            const mainTitle = document.getElementById('main-title');
+            const mainSubtitle = document.getElementById('main-subtitle');
+            
+            mainIcon.className = `main-icon ${fileType}`;
+            const iconName = getFileIcon(fileType);
+            mainIconElement.innerHTML = `<span class="material-symbols-outlined" style="font-size: 20px;">${iconName}</span>`;
+            
+            mainTitle.innerHTML = `
+                ${file.name}
+                <a href="${file.url}" target="_blank" class="open-file-btn" title="Open file in new window">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                </a>
+            `;
+            mainSubtitle.textContent = `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} • ${file.size || '2 KB'}`;
+            
+            const detailsGrid = document.getElementById('details-grid');
+            detailsGrid.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">Created</span>
+                    <span class="detail-value">${file.dateCreated}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Modified</span>
+                    <span class="detail-value">${file.lastUpdated}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Location</span>
+                    <span class="detail-value">${getDefaultLocation(file.parentFolders)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">File Type</span>
+                    <span class="detail-value">${fileType.charAt(0).toUpperCase() + fileType.slice(1)}</span>
+                </div>
+            `;
+            
+            const previewSection = document.getElementById('preview-section');
+            const previewContent = document.getElementById('preview-content');
+            if (file.preview && file.preview.trim()) {
+                previewContent.textContent = file.preview;
+                previewSection.style.display = 'block';
+            } else {
+                previewSection.style.display = 'none';
+            }
+            
+            document.getElementById('rename-section').style.display = 'block';
+            
+            document.getElementById('name-input').value = '';
+            
+            document.getElementById('current-location').textContent = getDefaultLocation(file.parentFolders);
+        }
+
+        function jumpToFile(index) {
+            if (index >= 0 && index < files.length) {
+                currentIndex = index;
+                displayCurrentFile();
+                updateProgressBar();
+                updateSidebarSelection();
+            }
+        }
+
+        function updateSidebarSelection() {
+            const fileItems = document.querySelectorAll('.file-item');
+            fileItems.forEach((item, index) => {
+                if (index === currentIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextFile() {
+            if (currentIndex < files.length - 1) {
+                jumpToFile(currentIndex + 1);
+            } else {
+                checkIfAllFilesProcessed();
+            }
+        }
+
+        function previousFile() {
+            if (currentIndex > 0) {
+                jumpToFile(currentIndex - 1);
+            }
+        }
+
+        function testCall() {
+            console.log('healthCheck function called');
+            showLoading();
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideLoading();
+                    console.log('healthCheck success:', result);
+                    handleSuccess('Connection test successful!');
+                    
+                    setTimeout(function() {
+                        loadFiles();
+                    }, 1000);
+                })
+                .withFailureHandler(function(error) {
+                    hideLoading();
+                    console.error('healthCheck error:', error);
+                    handleError(error, 'healthCheck');
+                })
+                .healthCheck();
+        }
+
+        function loadFiles() {
+            console.log('getUntitledFiles function called');
+            showLoading();
+            
+            makeApiCall(
+                'getUntitledFiles',
+                [],
+                function(result) {
+                    hideLoading();
+                    console.log('getUntitledFiles success:', result);
+                    
+                    if (result && Array.isArray(result)) {
+                        files = result;
+                        hasMoreFiles = checkForMoreFiles(result);
+                        currentIndex = 0;
+                        totalFilesLoaded = files.length;
+                        
+                        populateFileList();
+                        updateProgressBar();
+                        
+                        if (files.length > 0) {
+                            displayCurrentFile();
+                            handleSuccess(`Found ${files.length} untitled files${hasMoreFiles ? ' (searching for more...)' : ''}`);
+                            
+                            if (hasMoreFiles) startBackgroundLoading();
+                        } else {
+                            handleSuccess('No untitled files found');
+                        }
+                    } else {
+                        handleError(new Error('Invalid response format'), 'loadFiles');
+                    }
+                },
+                function(error) {
+                    hideLoading();
+                    handleError(error, 'loadFiles');
+                }
+            );
+        }
+
+        function checkForMoreFiles(result) {
+            if (result && result.length > 0) {
+                const lastFile = result[result.length - 1];
+                return lastFile._chunkInfo && lastFile._chunkInfo.hasMore;
+            }
+            return false;
+        }
+
+        function startBackgroundLoading() {
+            if (backgroundLoadingInterval) {
+                clearInterval(backgroundLoadingInterval);
+            }
+            
+            console.log('Starting background loading...');
+            
+            backgroundLoadingInterval = setInterval(() => {
+                if (!isLoadingMore && hasMoreFiles) {
+                    loadMoreFiles();
+                }
+            }, LOADING_INTERVAL);
+        }
+
+        function stopBackgroundLoading() {
+            if (backgroundLoadingInterval) {
+                clearInterval(backgroundLoadingInterval);
+                backgroundLoadingInterval = null;
+                console.log('Stopped background loading');
+            }
+        }
+
+        function loadMoreFiles() {
+            if (isLoadingMore || !hasMoreFiles) return;
+            
+            console.log('Loading more files... Current count:', files.length);
+            isLoadingMore = true;
+            updateProgressBar();
+            
+            makeApiCall(
+                'getNextChunk',
+                [files.length],
+                function(result) {
+                    isLoadingMore = false;
+                    console.log('getNextChunk success:', result);
+                    
+                    if (result && result.files && Array.isArray(result.files)) {
+                        const newFiles = result.files;
+                        
+                        files = files.concat(newFiles);
+                        hasMoreFiles = result.hasMore || false;
+                        totalFilesLoaded = files.length;
+                        
+                        populateFileList();
+                        updateProgressBar();
+                        
+                        if (newFiles.length > 0) {
+                            showToast(`Found ${newFiles.length} more files (${files.length} total)`, 'success');
+                        }
+                        
+                        if (!hasMoreFiles) {
+                            stopBackgroundLoading();
+                            showToast(`All files loaded! Found ${files.length} total untitled files.`, 'success');
+                        }
+                    } else {
+                        hasMoreFiles = false;
+                        stopBackgroundLoading();
+                        console.log('No more files to load');
+                    }
+                },
+                function(error) {
+                    isLoadingMore = false;
+                    console.log('Background loading error (silent):', error.message);
+                    updateProgressBar();
+                }
+            );
+        }
+
+        function renameFile(newName) {
+            if (!files[currentIndex] || !newName.trim()) {
+                handleError(new Error('Invalid file or name'), 'renameFile');
+                return;
+            }
+            
+            const file = files[currentIndex];
+            showLoading();
+            
+            makeApiCall(
+                'renameFile',
+                [file.id, newName],
+                function(result) {
+                    hideLoading();
+                    console.log('renameFile success:', result);
+                    processRenameResult(result, newName);
+                },
+                function(error) {
+                    hideLoading();
+                    handleError(error, 'renameFile');
+                }
+            );
+        }
+
+        function getFolderIcon(hasSubfolders) {
+            if (hasSubfolders === true) {
+                return { icon: ICONS.folders.hasSubfolders, class: 'folder-icon has-subfolders' };
+            } else if (hasSubfolders === false) {
+                return { icon: ICONS.folders.empty, class: 'folder-icon empty' };
+            } else {
+                return { icon: ICONS.folders.default, class: 'folder-icon' };
+            }
+        }
+
+        function showFolderPicker() {
+            const modal = document.getElementById('folder-modal');
+            modal.classList.add('show');
+            currentFolderId = 'root';
+            selectedFolderId = null;
+            loadFolders('root');
+            updateMoveButton();
+        }
+
+        function hideFolderPicker() {
+            const modal = document.getElementById('folder-modal');
+            modal.classList.remove('show');
+        }
+
+        function loadFolders(folderId) {
+            console.log('Loading folders for:', folderId);
+            const folderList = document.getElementById('folder-list');
+            
+            folderList.innerHTML = `
+                <div class="folder-loading">
+                    <div class="loading-dots"></div>
+                    Loading folders...
+                </div>
+            `;
+
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    console.log('getFolders success:', result);
+                    if (result.success) {
+                        displayFolders(result.folders);
+                        updateBreadcrumb(folderId);
+                    } else {
+                        folderList.innerHTML = `
+                            <div class="folder-loading">
+                                <span class="material-symbols-outlined">error</span>
+                                Error loading folders
+                            </div>
+                        `;
+                        showToast(result.message || 'Failed to load folders', 'error');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('getFolders error:', error);
+                    folderList.innerHTML = `
+                        <div class="folder-loading">
+                            <span class="material-symbols-outlined">error</span>
+                            Error loading folders
+                        </div>
+                    `;
+                    handleError(error, 'loadFolders');
+                })
+                .getFolders(folderId);
+        }
+
+        function displayFolders(folders) {
+            const folderList = document.getElementById('folder-list');
+            
+            if (folders.length === 0) {
+                folderList.innerHTML = `
+                    <div class="folder-loading">
+                        <span class="material-symbols-outlined">folder_off</span>
+                        No folders found
+                    </div>
+                `;
+                return;
+            }
+
+            folderList.innerHTML = '';
+            
+            folders.forEach(folder => {
+                const folderItem = document.createElement('div');
+                folderItem.className = 'folder-item';
+                folderItem.dataset.folderId = folder.id;
+                
+                const folderIconInfo = getFolderIcon(folder.hasSubfolders);
+                
+                folderItem.innerHTML = `
+                    <span class="material-symbols-outlined ${folderIconInfo.class}">${folderIconInfo.icon}</span>
+                    <span class="folder-name">${folder.name}</span>
+                `;
+                
+                folderItem.addEventListener('click', () => {
+                    selectFolder(folder.id, folder.name);
+                });
+                
+                folderItem.addEventListener('dblclick', () => {
+                    if (folder.id !== 'root' || !folder.isRoot) {
+                        navigateToFolder(folder.id);
+                    }
+                });
+                
+                folderList.appendChild(folderItem);
+            });
+        }
+
+        function selectFolder(folderId, folderName) {
+            document.querySelectorAll('.folder-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            const folderElement = document.querySelector(`[data-folder-id="${folderId}"]`);
+            if (folderElement) {
+                folderElement.classList.add('selected');
+            }
+            
+            selectedFolderId = folderId;
+            updateMoveButton();
+        }
+
+        function navigateToFolder(folderId) {
+            currentFolderId = folderId;
+            selectedFolderId = null;
+            loadFolders(folderId);
+            updateMoveButton();
+        }
+
+        function updateBreadcrumb(folderId) {
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        displayBreadcrumb(result.path);
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error getting folder path:', error);
+                })
+                .getFolderPath(folderId);
+        }
+
+        function displayBreadcrumb(path) {
+            const breadcrumb = document.getElementById('folder-breadcrumb');
+            folderPath = path;
+            
+            breadcrumb.innerHTML = '';
+            
+            path.forEach((folder, index) => {
+                if (index > 0) {
+                    const separator = document.createElement('span');
+                    separator.className = 'breadcrumb-separator';
+                    separator.innerHTML = '<span class="material-symbols-outlined">chevron_right</span>';
+                    breadcrumb.appendChild(separator);
+                }
+                
+                const breadcrumbItem = document.createElement('span');
+                breadcrumbItem.className = 'breadcrumb-item';
+                breadcrumbItem.textContent = folder.name;
+                breadcrumbItem.dataset.folderId = folder.id;
+                
+                if (index === 0) {
+                    breadcrumbItem.innerHTML = `<span class="material-symbols-outlined">home</span> ${folder.name}`;
+                }
+                
+                breadcrumbItem.addEventListener('click', () => {
+                    navigateToFolder(folder.id);
+                });
+                
+                breadcrumb.appendChild(breadcrumbItem);
+            });
+        }
+
+        function updateMoveButton() {
+            const moveButton = document.getElementById('confirm-move');
+            if (selectedFolderId) {
+                moveButton.disabled = false;
+                const selectedFolder = folderPath.find(f => f.id === selectedFolderId) || 
+                                    { name: 'Selected Folder' };
+                moveButton.innerHTML = `
+                    <span class="material-symbols-outlined">drive_file_move</span>
+                    Move to ${selectedFolder.name}
+                `;
+            } else {
+                moveButton.disabled = true;
+                moveButton.innerHTML = `
+                    <span class="material-symbols-outlined">drive_file_move</span>
+                    Select a folder
+                `;
+            }
+        }
+
+        function moveCurrentFile() {
+            if (!selectedFolderId || !files[currentIndex] || isMovingFile) {
+                return;
+            }
+            
+            const file = files[currentIndex];
+            const targetFolder = folderPath.find(f => f.id === selectedFolderId) || 
+                               { name: 'Selected Folder' };
+            
+            isMovingFile = true;
+            showLoading();
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    hideLoading();
+                    isMovingFile = false;
+                    
+                    if (result.success) {
+                        handleSuccess(`File moved to ${targetFolder.name}`);
+                        hideFolderPicker();
+                        
+                        if (files[currentIndex]) {
+                            files[currentIndex].parentFolders = [{ 
+                                id: selectedFolderId, 
+                                name: targetFolder.name 
+                            }];
+                            displayCurrentFile();
+                        }
+                        
+                        setTimeout(() => {
+                            nextFile();
+                        }, 1000);
+                    } else {
+                        handleError(new Error(result.message || 'Failed to move file'), 'moveFile');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideLoading();
+                    isMovingFile = false;
+                    console.error('moveFileToFolder error:', error);
+                    handleError(error, 'moveFile');
+                })
+                .moveFileToFolder(file.id, selectedFolderId);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up event listeners');
+            
+            document.getElementById('save-btn').addEventListener('click', function() {
+                const newName = document.getElementById('name-input').value.trim();
+                if (newName) {
+                    renameFile(newName);
+                } else {
+                    handleError(new Error('Please enter a file name'), 'save');
+                }
+            });
+            
+            document.getElementById('skip-btn').addEventListener('click', function() {
+                nextFile();
+            });
+            
+            document.getElementById('move-btn').addEventListener('click', function() {
+                if (files[currentIndex]) {
+                    showFolderPicker();
+                } else {
+                    showToast('No file selected', 'warning');
+                }
+            });
+
+            document.getElementById('modal-close').addEventListener('click', hideFolderPicker);
+            document.getElementById('cancel-move').addEventListener('click', hideFolderPicker);
+            document.getElementById('confirm-move').addEventListener('click', moveCurrentFile);
+
+            document.getElementById('folder-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideFolderPicker();
+                }
+            });
+            
+            document.getElementById('name-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('save-btn').click();
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' || e.key === 'n') {
+                    nextFile();
+                } else if (e.key === 'ArrowLeft' || e.key === 'p') {
+                    previousFile();
+                } else if (e.key === 's' && e.ctrlKey) {
+                    e.preventDefault();
+                    document.getElementById('save-btn').click();
+                }
+            });
+            
+            console.log('Starting application...');
+            testCall();
+        });
+
+        window.addEventListener('beforeunload', function() {
+            stopBackgroundLoading();
+        });
+
+        function checkIfAllFilesProcessed() {
+            if (currentIndex >= files.length - 1 && !hasMoreFiles) {
+                stopBackgroundLoading();
+                showToast('🎉 All files have been processed!', 'success');
+            }
+        }
+
+        window.testCall = testCall;
+        window.loadFiles = loadFiles;
+        window.renameFile = renameFile;
+    </script>
+</body>
+</html>
