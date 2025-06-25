@@ -1602,23 +1602,6 @@
                 }
             });
             
-            document.getElementById('name-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('save-btn').click();
-                }
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'ArrowRight' || e.key === 'n') {
-                    nextFile();
-                } else if (e.key === 'ArrowLeft' || e.key === 'p') {
-                    previousFile();
-                } else if (e.key === 's' && e.ctrlKey) {
-                    e.preventDefault();
-                    document.getElementById('save-btn').click();
-                }
-            });
-            
             console.log('Starting application...');
             testCall();
         });

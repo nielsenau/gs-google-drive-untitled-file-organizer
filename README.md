@@ -6,7 +6,7 @@ This is a simple web app to find and rename any default named "Untitled document
 
 ## Quick Start
 
-**[Open the App](https://script.google.com/macros/s/AKfycbwZXfxFgKUc9lPol8MNL3qrEKBo2ePPab1jJytCxE8/dev)**
+**[Open the App](https://script.google.com/macros/s/AKfycby2ZXjPaEelm7ibf3EIPHycmWys4JEvLWBJRAeIds8QviJS1PCaNMtY-g7iRijpqxQ/exec)**
 
 1. Click the link above
 2. Grant permissions when prompted (see [what access it needs](#what-data-access-does-this-need) below)
@@ -53,8 +53,6 @@ The app needs pretty broad Google Drive permissions to find, rename, and move yo
 **The app only renames and moves files** - it doesn't delete anything or modify file contents.
 
 The deployed version collects basic, anonymous analytics (number of users, executions, errors) through Google Apps Script's default built-in metrics.
-
-## Feedback Welcome
 
 This is a rough utility I built for myself because I couldn't find anything else that did exactly what I wanted. If you find it useful or run into issues: [email me](mailto:nielsenau@gmail.com) or [open an issue](../../issues).
 
